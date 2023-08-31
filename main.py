@@ -21,5 +21,12 @@ while True:
     event, values = window.read()
     if event == sg.WIN_CLOSED:
         break
+    if event == "-BUTTON-":
+        window["-LOCATION-"].update("text1", visible=True)
+        window["-TIME-"].update("text2", visible=True)
+        window["-TEMP-"].update("text3", visible=True)
+        window["-IMAGE-"].update("symbols/sun.png")
 
+
+window.close()
 
