@@ -1,6 +1,23 @@
 import PySimpleGUI as sg
 from bs4 import BeautifulSoup as bs
 import requests
+
+def get_weather_data(location):
+    url =f"https://www.google.com/search?q=weather+{location.replace(' ','')}"
+    USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36"
+    session = requests.Session()
+    session.headers['User-Agent'] = USER_AGENT
+    html = session.get(url)
+
+    # create a new soup
+    soup = bs(html.text, "html.parser")
+    time = soup.find("div", attrs={'id': 'wob_dts'}).text
+    weather = soup.find("span", attrs={'id': 'wob_dc'}).text
+    temp = soup.find("span", attrs={'id': 'wob_tm'}).text
+    return time, weather, temp
+
+
+sg.theme("reddit")
 image_col = sg.Column([[sg.Image("", key="-IMAGE-", background_color="white")]])
 info_col = sg.Column([
     [sg.Text('test', key="-LOCATION-", font="Calibri 30", background_color="#FF0000", text_color="#FFFFFF",
@@ -17,15 +34,19 @@ layout = [
 
 window = sg.Window("weather", layout)
 
+
 while True:
     event, values = window.read()
     if event == sg.WIN_CLOSED:
         break
     if event == "-BUTTON-":
-        window["-LOCATION-"].update("text1", visible=True)
-        window["-TIME-"].update("text2", visible=True)
-        window["-TEMP-"].update("text3", visible=True)
-        window["-IMAGE-"].update("symbols/sun.png")
+        time, weather, temp = get_weather_data(values["-INPUT-"])
+        window["-LOCATION-"].update(values["-INPUT-"], visible=True)
+        window["-TIME-"].update(time, visible=True)
+        window["-TEMP-"].update(f"{temp}\u2103 ({weather})", visible=True)
+        window["-IMAGE-"].update(f"symbols/sun.png")
+        # sun
+        
 
 
 window.close()
